@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+{% block title %}Shop Suits{% endblock %}
+{% block content %}
+<section class="hero">
+  {% set hero_images = get_product_images(products[0]) if products else [] %}
+  <div class="hero-art" aria-hidden="true">
+    {% if hero_images %}<img src="{{ url_for('static', filename=hero_images[0]) }}" alt="">{% endif %}
+    <span class="hero-art-caption">The VIVAH edit</span>
+  </div>
+  <div class="hero-text">
+    <span class="eyebrow">Mayur Vivah · New season</span>
+    <h1>Dress for the moments that matter.</h1>
+    <p>Refined ladies' suits with rich colour, graceful detail and an effortless fit for every celebration.</p>
+    <div class="hero-actions">
+      <a href="#catalog" class="btn btn-primary">Explore the collection</a>
+      <a href="#catalog" class="hero-text-link">View all styles <span aria-hidden="true">↗</span></a>
+    </div>
+    <div class="hero-stats">
+      <div>
+        <strong>01</strong>
+        <span>curated edit</span>
+      </div>
+      <div>
+        <strong>4.9/5</strong>
+        <span>customer love</span>
+      </div>
+      <div>
+        <strong>COD</strong>
+        <span>available</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-panel" aria-label="Featured collection preview">
+    <div class="feature-card feature-card-primary">
+      <span class="feature-label">Signature detail</span>
+      <strong>Silhouettes made for celebration.</strong>
+      <small>Handpicked festive sets · Limited edit</small>
+    </div>
+    <div class="feature-card feature-card-soft">
+      <span>Quiet luxury, everyday ease</span>
+      <strong>From ₹{{ products[0].price|inr if products else '2,499' }}</strong>
+    </div>
+  </div>
+</section>
+
+<section id="catalog" class="catalog-bar">
+  <div class="chips">
+    <a href="{{ url_for('index', q=q, size=size, color=color, fabric=fabric, embroidery=embroidery, fit_type=fit_type, price_max=price_max, sort=sort) }}" class="chip {% if not active_catalog %}active{% endif %}">All</a>
+    {% for c in catalogs %}
+      <a href="{{ url_for('index', catalog=c.slug, q=q, size=size, color=color, fabric=fabric, embroidery=embroidery, fit_type=fit_type, price_max=price_max, sort=sort) }}"
+         class="chip {% if active_catalog == c.slug %}active{% endif %}">{{ c.name }}</a>
+    {% endfor %}
+  </div>
+
+  <form class="filter-panel" method="get" action="{{ url_for('index') }}">
+    <input type="hidden" name="catalog" value="{{ active_catalog }}">
+    <div class="filter-grid">
+      <label>
+        <span>Search</span>
+        <input type="text" name="q" value="{{ q }}" placeholder="Search suits...">
+      </label>
+      <label>
+        <span>Size</span>
+        <select name="size">
+          <option value="">Any size</option>
+          {% for item in filters.sizes %}
+            <option value="{{ item }}" {% if size == item %}selected{% endif %}>{{ item }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        <span>Color</span>
+        <select name="color">
+          <option value="">Any color</option>
+          {% for item in filters.colors %}
+            <option value="{{ item }}" {% if color == item %}selected{% endif %}>{{ item }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        <span>Fabric</span>
+        <select name="fabric">
+          <option value="">Any fabric</option>
+          {% for item in filters.fabrics %}
+            <option value="{{ item }}" {% if fabric == item %}selected{% endif %}>{{ item }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        <span>Embroidery</span>
+        <select name="embroidery">
+          <option value="">Any level</option>
+          {% for item in filters.embroidery_levels %}
+            <option value="{{ item }}" {% if embroidery == item %}selected{% endif %}>{{ item }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        <span>Style</span>
+        <select name="fit_type">
+          <option value="">Any style</option>
+          {% for item in filters.fit_types %}
+            <option value="{{ item }}" {% if fit_type == item %}selected{% endif %}>{{ item }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        <span>Max price</span>
+        <select name="price_max">
+          <option value="">Any price</option>
+          <option value="1000" {% if price_max == '1000' %}selected{% endif %}>₹1,000</option>
+          <option value="2000" {% if price_max == '2000' %}selected{% endif %}>₹2,000</option>
+          <option value="4000" {% if price_max == '4000' %}selected{% endif %}>₹4,000</option>
+          <option value="8000" {% if price_max == '8000' %}selected{% endif %}>₹8,000</option>
+          <option value="15000" {% if price_max == '15000' %}selected{% endif %}>₹15,000</option>
+        </select>
+      </label>
+      <label>
+        <span>Sort by</span>
+        <select name="sort">
+          <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest</option>
+          <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+          <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+          <option value="popularity" {% if sort == 'popularity' %}selected{% endif %}>Popularity</option>
+        </select>
+      </label>
+    </div>
+    <div class="filter-actions">
+      <button type="submit" class="btn btn-primary">Apply filters</button>
+      <a href="{{ url_for('index', catalog=active_catalog) }}" class="btn btn-secondary">Reset</a>
+    </div>
+  </form>
+
+  {% if q %}
+    <p class="search-note">Results for "<strong>{{ q }}</strong>" · <a href="{{ url_for('index', catalog=active_catalog) }}">clear</a></p>
+  {% endif %}
+</section>
+
+<section class="product-grid">
+  {% for p in products %}
+    {% set badges = product_badges({'featured': p.featured, 'is_new': p.is_new, 'is_best_seller': p.is_best_seller}) %}
+    {% set images = get_product_images(p) %}
+    <article class="card product-card">
+      <div class="card-media">
+        <a href="{{ url_for('product_detail', slug=p.slug) }}" class="card-img" data-hover-images='{{ images|tojson }}'>
+          {% if images %}
+            <img class="card-main-image" src="{{ url_for('static', filename=images[0]) }}" alt="{{ p.name }}" loading="lazy">
+            {% if images|length > 1 %}
+              <img class="card-hover-image" src="{{ url_for('static', filename=images[1]) }}" alt="{{ p.name }} alt" loading="lazy">
+            {% endif %}
+          {% else %}
+            <div class="img-fallback">🦚</div>
+          {% endif %}
+        </a>
+        <div class="card-badges">
+          {% for badge in badges %}
+            <span class="badge badge-{{ badge|lower|replace(' ', '-') }}">{{ badge }}</span>
+          {% endfor %}
+          {% if p.stock <= 0 %}<span class="badge badge-out">Sold out</span>{% endif %}
+        </div>
+        <form action="{{ url_for('wishlist_toggle', pid=p.id) }}" method="post" class="wishlist-button">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" aria-label="Wishlist" class="wishlist-icon {% if p.id in wishlist_ids %}active{% endif %}">♥</button>
+        </form>
+        <button
+          type="button"
+          class="quick-view-btn"
+          data-product-slug="{{ p.slug }}"
+          data-product-name="{{ p.name }}"
+          data-product-price="₹{{ p.price|inr }}"
+          data-product-image="{{ url_for('static', filename=images[0]) if images else '' }}"
+          data-product-stock="{{ p.stock }}"
+          data-product-link="{{ url_for('product_detail', slug=p.slug) }}">Quick View</button>
+      </div>
+      <div class="card-body">
+        <div class="card-cat">{{ p.catalog_name or 'Suits' }}</div>
+        <a href="{{ url_for('product_detail', slug=p.slug) }}" class="card-title">{{ p.name }}</a>
+        <div class="card-meta-row">
+          <span>{{ p.fabric or 'Premium fabric' }}</span>
+          <span>{{ p.embroidery_level or 'Classic' }}</span>
+        </div>
+        <div class="card-price">
+          <span class="price">₹{{ p.price|inr }}</span>
+          {% if p.compare_at and p.compare_at > p.price %}
+            <span class="compare">₹{{ p.compare_at|inr }}</span>
+          {% endif %}
+        </div>
+        <div class="card-bottom-row">
+          <div class="card-sizes">{{ p.sizes }}</div>
+          {% if p.stock > 0 %}
+            <span class="stock-indicator in-stock">{{ p.stock }} left</span>
+          {% else %}
+            <span class="stock-indicator sold-out">Out of stock</span>
+          {% endif %}
+        </div>
+        <a class="whatsapp-share-btn card-share" href="{{ url_for('share_product_whatsapp', pid=p.id) }}" aria-label="Share {{ p.name }} on WhatsApp"><span class="whatsapp-mark" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 3.2a8.8 8.8 0 0 0-7.6 13.2L3.2 20.8l4.5-1.2A8.8 8.8 0 1 0 12 3.2Zm0 15.8a7 7 0 0 1-3.6-1l-.3-.2-2.7.7.7-2.6-.2-.3A7 7 0 1 1 12 19Zm3.8-5.2c-.2-.1-1.2-.6-1.4-.7-.2-.1-.3-.1-.5.1l-.6.8c-.1.2-.3.2-.5.1a5.7 5.7 0 0 1-2.8-2.5c-.2-.3 0-.4.1-.5l.4-.5c.1-.1.1-.3.2-.4 0-.1 0-.3-.1-.4l-.6-1.4c-.2-.4-.3-.4-.5-.4h-.4c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 1.9s.8 2.2.9 2.3a8 8 0 0 0 3.1 3c.4.2 1.4.6 1.8.7.4.1.8.1 1.1.1.3 0 1.1-.5 1.3-.9.2-.4.2-.8.1-.9-.1-.1-.2-.1-.4-.2Z"/></svg></span> Share on WhatsApp</a>
+      </div>
+    </article>
+  {% else %}
+    <p class="empty">No suits found. Try a different search or catalog.</p>
+  {% endfor %}
+</section>
+{% endblock %}

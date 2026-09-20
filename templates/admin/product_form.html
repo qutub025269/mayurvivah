@@ -1,0 +1,67 @@
+{% extends "admin/base.html" %}
+{% block title %}{% if product %}Edit{% else %}Add{% endif %} Suit{% endblock %}
+{% block content %}
+<h1 class="page-title">{% if product %}Edit Suit{% else %}Add New Suit{% endif %}</h1>
+<form method="post" enctype="multipart/form-data" class="form-card wide">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label>Product name<input type="text" name="name" required value="{{ product.name if product else '' }}"></label>
+  <label>SKU<input type="text" name="sku" value="{{ product.sku if product else '' }}" placeholder="e.g. VIVAH-1025"></label>
+  <div class="form-row">
+    <label>Catalog
+      <select name="catalog_id">
+        <option value="">— No catalog —</option>
+        {% for c in catalogs %}
+          <option value="{{ c.id }}" {% if product and product.catalog_id == c.id %}selected{% endif %}>{{ c.name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Price (₹)<input type="number" name="price" min="0" step="1" required value="{{ product.price if product else '' }}"></label>
+  </div>
+  <div class="form-row">
+    <label>Compare-at price (₹, optional)<input type="number" name="compare_at" min="0" step="1" value="{{ product.compare_at if product and product.compare_at else '' }}"></label>
+    <label>Stock<input type="number" name="stock" min="0" step="1" required value="{{ product.stock if product else '10' }}"></label>
+  </div>
+  <label>Sizes (comma separated)<input type="text" name="sizes" value="{{ product.sizes if product else 'S,M,L,XL' }}"></label>
+  <div class="form-row">
+    <label>Color<input type="text" name="color" value="{{ product.color if product else '' }}" placeholder="e.g. Maroon"></label>
+    <label>Fabric<input type="text" name="fabric" value="{{ product.fabric if product else '' }}" placeholder="e.g. Cotton"></label>
+  </div>
+  <div class="form-row">
+    <label>Embroidery level
+      <select name="embroidery_level">
+        <option value="Light" {% if product and product.embroidery_level == 'Light' %}selected{% endif %}>Light</option>
+        <option value="Medium" {% if product and product.embroidery_level == 'Medium' %}selected{% endif %}>Medium</option>
+        <option value="Heavy" {% if product and product.embroidery_level == 'Heavy' %}selected{% endif %}>Heavy</option>
+      </select>
+    </label>
+    <label>Style
+      <select name="fit_type">
+        <option value="Ready to wear" {% if product and product.fit_type == 'Ready to wear' %}selected{% endif %}>Ready to wear</option>
+        <option value="Unstitched" {% if product and product.fit_type == 'Unstitched' %}selected{% endif %}>Unstitched</option>
+      </select>
+    </label>
+  </div>
+  <div class="form-row checks">
+    <label class="check"><input type="checkbox" name="is_new" {% if product and product.is_new %}checked{% endif %}> New</label>
+    <label class="check"><input type="checkbox" name="is_best_seller" {% if product and product.is_best_seller %}checked{% endif %}> Best Seller</label>
+  </div>
+  <label>Description<textarea name="description" rows="4">{{ product.description if product else '' }}</textarea></label>
+  <label>Photo (JPG/PNG/WebP, max 5MB)
+    <input type="file" name="image" accept=".jpg,.jpeg,.png,.webp" id="img-input">
+  </label>
+  <div class="img-preview-row">
+    {% if product and product.image %}
+      <div><span class="muted small">Current:</span><br><img id="current-img" src="{{ url_for('static', filename=product.image) }}" class="preview" alt=""></div>
+    {% endif %}
+    <div><span class="muted small">New:</span><br><img id="new-preview" class="preview hidden" alt=""></div>
+  </div>
+  <div class="form-row checks">
+    <label class="check"><input type="checkbox" name="visible" {% if not product or product.visible %}checked{% endif %}> Visible in store</label>
+    <label class="check"><input type="checkbox" name="featured" {% if product and product.featured %}checked{% endif %}> Featured</label>
+  </div>
+  <div class="form-actions">
+    <button type="submit" class="btn btn-primary">{% if product %}Save Changes{% else %}Add Suit{% endif %}</button>
+    <a href="{{ url_for('admin_products') }}" class="btn">Cancel</a>
+  </div>
+</form>
+{% endblock %}

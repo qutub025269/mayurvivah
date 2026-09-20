@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Checkout{% endblock %}
+{% block content %}
+<h1 class="page-title">Checkout</h1>
+<div class="checkout-grid">
+  <form action="{{ url_for('checkout') }}" method="post" class="form-card">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <h2>Delivery details</h2>
+    <label>Full name<input type="text" name="name" required autocomplete="name"></label>
+    <label>Phone (10-digit mobile)<input type="tel" name="phone" required pattern="[0-9+ ]{10,15}" autocomplete="tel"></label>
+    <label>Address<textarea name="address" rows="3" required autocomplete="street-address"></textarea></label>
+    <div class="form-row">
+      <label>City<input type="text" name="city" required autocomplete="address-level2"></label>
+      <label>State<input type="text" name="state" required autocomplete="address-level1"></label>
+    </div>
+    <label>Pincode<input type="text" name="pincode" required pattern="[0-9]{6}" maxlength="6" inputmode="numeric" autocomplete="postal-code"></label>
+    <label>Notes (optional)<textarea name="notes" rows="2" placeholder="Any delivery instructions..."></textarea></label>
+
+    <h2>Payment</h2>
+    <label class="pay-option">
+      <input type="radio" checked disabled>
+      <span>💵 <strong>Pay on Delivery</strong> — pay cash/UPI when your order arrives</span>
+    </label>
+
+    <button type="submit" class="btn btn-primary btn-block">Place Order · ₹{{ total|inr }}</button>
+  </form>
+
+  <aside class="order-summary">
+    <h2>Order summary</h2>
+    {% for item in items %}
+      <div class="summary-row">
+        <span>{{ item.qty }} × {{ item.name }} <span class="muted">({{ item.size }})</span></span>
+        <span>₹{{ item.line_total|inr }}</span>
+      </div>
+    {% endfor %}
+    <div class="total-row"><span>Total</span><strong>₹{{ total|inr }}</strong></div>
+  </aside>
+</div>
+{% endblock %}

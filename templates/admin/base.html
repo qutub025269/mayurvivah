@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Admin{% endblock %} - Mayur Vivah</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</head>
+<body class="admin">
+{% if admin_must_change %}
+  <div class="admin-warning">
+    ⚠️ You are using the default admin password.
+    <a href="{{ url_for('admin_change_password') }}">Change it now →</a>
+  </div>
+{% endif %}
+<div class="admin-shell">
+  <aside class="admin-side">
+    <a class="brand small" href="{{ url_for('admin_dashboard') }}">
+      <span class="brand-logo-wrap"><img class="brand-logo" src="{{ url_for('static', filename='mayur-logo.png') }}" alt="Mayur Vivah"></span>
+      <span>Mayur Vivah</span>
+      <em>Admin</em>
+    </a>
+    <nav>
+      <a href="{{ url_for('admin_dashboard') }}" class="{% if request.endpoint == 'admin_dashboard' %}active{% endif %}">📊 Dashboard</a>
+      <a href="{{ url_for('admin_products') }}" class="{% if 'product' in request.endpoint %}active{% endif %}">👗 Products</a>
+      <a href="{{ url_for('admin_catalogs') }}" class="{% if 'catalog' in request.endpoint %}active{% endif %}">🗂 Catalogs</a>
+      <a href="{{ url_for('admin_orders') }}" class="{% if 'order' in request.endpoint %}active{% endif %}">📦 Orders</a>
+      <a href="{{ url_for('admin_change_password') }}" class="{% if request.endpoint == 'admin_change_password' %}active{% endif %}">🔑 Password</a>
+      <a href="{{ url_for('index') }}" target="_blank">🌐 View store</a>
+      <a href="{{ url_for('admin_logout') }}">🚪 Logout ({{ current_admin.username }})</a>
+    </nav>
+  </aside>
+  <main class="admin-main">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flashes">
+          {% for category, message in messages %}
+            <div class="flash flash-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+</div>
+</body>
+</html>

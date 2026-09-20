@@ -1,0 +1,15 @@
+{% extends "admin/base.html" %}
+{% block title %}{% if catalog %}Edit{% else %}New{% endif %} Catalog{% endblock %}
+{% block content %}
+<h1 class="page-title">{% if catalog %}Edit Catalog{% else %}New Catalog{% endif %}</h1>
+<form method="post" class="form-card wide">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label>Catalog name<input type="text" name="name" required value="{{ catalog.name if catalog else '' }}"></label>
+  <label>Description<textarea name="description" rows="3">{{ catalog.description if catalog else '' }}</textarea></label>
+  <label class="check"><input type="checkbox" name="visible" {% if not catalog or catalog.visible %}checked{% endif %}> Visible in store</label>
+  <div class="form-actions">
+    <button type="submit" class="btn btn-primary">{% if catalog %}Save Changes{% else %}Create Catalog{% endif %}</button>
+    <a href="{{ url_for('admin_catalogs') }}" class="btn">Cancel</a>
+  </div>
+</form>
+{% endblock %}

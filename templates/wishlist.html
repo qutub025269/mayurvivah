@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Wishlist{% endblock %}
+{% block content %}
+<section class="page-head">
+  <h1 class="page-title">Wishlist</h1>
+</section>
+
+{% if products %}
+  <section class="product-grid wishlist-grid">
+    {% for p in products %}
+      {% set images = get_product_images(p) %}
+      <article class="card product-card">
+        <div class="card-media">
+          <a href="{{ url_for('product_detail', slug=p.slug) }}" class="card-img">
+            {% if images %}
+              <img src="{{ url_for('static', filename=images[0]) }}" alt="{{ p.name }}" loading="lazy">
+            {% else %}
+              <div class="img-fallback">🦚</div>
+            {% endif %}
+          </a>
+          {% if p.stock <= 0 %}<span class="badge badge-out">Sold out</span>{% endif %}
+          <form action="{{ url_for('wishlist_toggle', pid=p.id) }}" method="post" class="wishlist-button">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" aria-label="Wishlist" class="wishlist-icon active">♥</button>
+          </form>
+        </div>
+        <div class="card-body">
+          <div class="card-cat">{{ p.catalog_name or 'Suits' }}</div>
+          <a href="{{ url_for('product_detail', slug=p.slug) }}" class="card-title">{{ p.name }}</a>
+          <div class="card-price">
+            <span class="price">₹{{ p.price|inr }}</span>
+            {% if p.compare_at and p.compare_at > p.price %}
+              <span class="compare">₹{{ p.compare_at|inr }}</span>
+            {% endif %}
+          </div>
+          <div class="card-bottom-row">
+            <div class="card-sizes">{{ p.sizes }}</div>
+            {% if p.stock > 0 %}
+              <span class="stock-indicator in-stock">{{ p.stock }} left</span>
+            {% else %}
+              <span class="stock-indicator sold-out">Out of stock</span>
+            {% endif %}
+          </div>
+        </div>
+      </article>
+    {% endfor %}
+  </section>
+{% else %}
+  <div class="empty-card">
+    <h2>Your wishlist is empty</h2>
+    <p>Save your favorite suits to revisit them later.</p>
+    <a href="{{ url_for('index') }}" class="btn btn-primary">Shop now</a>
+  </div>
+{% endif %}
+{% endblock %}

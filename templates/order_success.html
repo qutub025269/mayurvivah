@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Order Confirmed{% endblock %}
+{% block content %}
+<div class="success-card">
+  <div class="success-icon">✅</div>
+  <h1>Thank you, {{ name }}!</h1>
+  <p>Your order has been placed successfully.</p>
+  <div class="order-no">Order number: <strong>{{ order_no }}</strong></div>
+  <p class="muted">Please keep this number for any questions about your order.<br>
+     Pay <strong>₹{{ total|inr }}</strong> on delivery.</p>
+  <a href="{{ url_for('index') }}" class="btn btn-primary">Continue Shopping</a>
+</div>
+{% endblock %}

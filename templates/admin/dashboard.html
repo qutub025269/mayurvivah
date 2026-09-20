@@ -1,0 +1,55 @@
+{% extends "admin/base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h1 class="page-title">Dashboard</h1>
+<div class="stat-grid">
+  <div class="stat"><span class="stat-num">{{ stats.products }}</span><span class="stat-label">Products</span></div>
+  <div class="stat"><span class="stat-num">{{ stats.catalogs }}</span><span class="stat-label">Catalogs</span></div>
+  <div class="stat"><span class="stat-num">{{ stats.pending_orders }}</span><span class="stat-label">Pending orders</span></div>
+  <div class="stat"><span class="stat-num">₹{{ stats.revenue|inr }}</span><span class="stat-label">Revenue (excl. cancelled)</span></div>
+</div>
+
+<h2 class="section-title">Recent orders</h2>
+{% if recent %}
+<table class="table">
+  <thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th><th>Date</th></tr></thead>
+  <tbody>
+  {% for o in recent %}
+    <tr>
+      <td><a href="{{ url_for('admin_order_detail', oid=o.id) }}">{{ o.order_no }}</a></td>
+      <td>{{ o.name }}<br><span class="muted small">{{ o.phone }}</span></td>
+      <td>₹{{ o.total|inr }}</td>
+      <td><span class="status status-{{ o.status }}">{{ o.status }}</span></td>
+      <td class="muted small">{{ o.created_at[:16] }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No orders yet.</p>
+{% endif %}
+
+{% if low_stock %}
+<h2 class="section-title">Low stock (≤ 5)</h2>
+<table class="table">
+  <thead><tr><th>Product</th><th>Stock</th></tr></thead>
+  <tbody>
+  {% for p in low_stock %}
+    <tr><td>{{ p.name }}</td><td><strong>{{ p.stock }}</strong></td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+{% if most_shared %}
+<h2 class="section-title">🔥 Most Shared Products</h2>
+<table class="table">
+  <thead><tr><th>Product ID</th><th>Product</th><th>SKU</th><th>WhatsApp shares</th><th>Last shared</th></tr></thead>
+  <tbody>
+  {% for p in most_shared %}
+    <tr><td>{{ p.id }}</td><td>{{ p.name }}</td><td class="muted">{{ p.sku }}</td><td><strong>{{ p.share_count }}</strong></td><td class="muted small">{{ p.last_shared_at or '—' }}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+{% endblock %}

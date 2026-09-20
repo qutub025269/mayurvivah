@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Mayur Vivah{% endblock %} - Ladies' Suits</title>
+{% block social_meta %}{% endblock %}
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="{{ url_for('index') }}">
+      <span class="brand-logo-wrap"><img class="brand-logo" src="{{ url_for('static', filename='mayur-logo.png') }}" alt="Mayur Vivah"></span>
+      <span class="brand-name">Mayur <em>Vivah</em></span>
+    </a>
+    <form class="search" action="{{ url_for('index') }}" method="get">
+      <input type="search" name="q" placeholder="Search suits..." value="{{ q|default('') }}">
+      <button type="submit" aria-label="Search">🔍</button>
+    </form>
+    <nav class="header-nav">
+      <a href="{{ url_for('index') }}">Shop</a>
+      <a href="{{ url_for('wishlist_view') }}">Wishlist</a>
+      <a href="{{ url_for('cart_view') }}" class="bag-link">🛍 Bag <span class="bag-count">{{ cart_count() }}</span></a>
+    </nav>
+    <button class="menu-toggle" aria-label="Menu">☰</button>
+  </div>
+</header>
+
+<main class="container">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flashes">
+        {% for category, message in messages %}
+          <div class="flash flash-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</main>
+
+<div id="quick-view-modal" class="quick-view-modal" aria-label="Quick view modal">
+  <div class="quick-view-content" role="dialog" aria-modal="true">
+    <button id="quick-view-close" class="quick-view-close" type="button" aria-label="Close">×</button>
+    <div class="quick-view-image">
+      <img id="quick-view-image" src="" alt="Product preview">
+    </div>
+    <div class="quick-view-body">
+      <span class="eyebrow">Featured pick</span>
+      <h3 id="quick-view-title">Product</h3>
+      <div id="quick-view-price" class="quick-view-price">₹0</div>
+      <div id="quick-view-stock" class="quick-view-meta">Stock info</div>
+      <p class="quick-view-meta">Handpicked for festive moments and special occasions.</p>
+      <div class="quick-view-actions">
+        <a id="quick-view-link" href="/" class="btn btn-primary">View Details</a>
+        <button type="button" class="btn btn-secondary" onclick="document.getElementById('quick-view-modal').classList.remove('open')">Continue shopping</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="container contact-section" id="contact">
+    <div class="contact-intro">
+      <span class="eyebrow">Stay in touch</span>
+      <h2>Connect With VIVAH</h2>
+      <p>Have questions about our suits, sizes, availability, or orders? We're happy to help.</p>
+    </div>
+    <div class="contact-grid">
+      <a class="social-contact whatsapp-contact" href="https://wa.me/YOUR_WHATSAPP_NUMBER?text=Hi%20Vivah%2C%20I%E2%80%99m%20interested%20in%20your%20ladies%20suits.%20Can%20you%20help%20me%3F" aria-label="Chat with us on WhatsApp">
+        <span class="social-icon" aria-hidden="true">◉</span>
+        <span><strong>WhatsApp</strong><small>Chat with us</small></span>
+        <span class="contact-arrow" aria-hidden="true">↗</span>
+      </a>
+      <a class="social-contact facebook-contact" href="YOUR_FACEBOOK_URL" target="_blank" rel="noopener noreferrer" aria-label="Follow us on Facebook">
+        <span class="social-icon" aria-hidden="true">f</span>
+        <span><strong>Facebook</strong><small>Follow us</small></span>
+        <span class="contact-arrow" aria-hidden="true">↗</span>
+      </a>
+      <a class="social-contact instagram-contact" href="YOUR_INSTAGRAM_URL" target="_blank" rel="noopener noreferrer" aria-label="Follow us on Instagram">
+        <span class="social-icon" aria-hidden="true">◎</span>
+        <span><strong>Instagram</strong><small>Follow us</small></span>
+        <span class="contact-arrow" aria-hidden="true">↗</span>
+      </a>
+    </div>
+    <div class="contact-details">
+      <a href="tel:+910000000000"><span aria-hidden="true">☎</span> +91 00000 00000</a>
+      <a href="mailto:hello@vivah.example"><span aria-hidden="true">✉</span> hello@vivah.example</a>
+      <span><span aria-hidden="true">⌖</span> By appointment · India</span>
+      <span><span aria-hidden="true">◷</span> Mon–Sat · 10:00 AM–7:00 PM</span>
+    </div>
+  </div>
+  <div class="container footer-inner">
+    <div><strong>Mayur Vivah</strong><br>Elegant ladies' suits for every occasion.</div>
+    <div class="footer-note">Pay on delivery · Easy 7-day exchange</div>
+  </div>
+</footer>
+</body>
+</html>

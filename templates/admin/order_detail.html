@@ -1,0 +1,44 @@
+{% extends "admin/base.html" %}
+{% block title %}Order {{ order.order_no }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1 class="page-title">Order {{ order.order_no }}</h1>
+  <span class="status status-{{ order.status }}">{{ order.status }}</span>
+</div>
+<div class="detail-grid">
+  <div class="form-card">
+    <h2>Customer</h2>
+    <p><strong>{{ order.name }}</strong><br>{{ order.phone }}</p>
+    <p>{{ order.address }}<br>{{ order.city }}, {{ order.state }} {{ order.pincode }}</p>
+    {% if order.notes %}<p class="muted">Notes: {{ order.notes }}</p>{% endif %}
+    <p class="muted small">Placed: {{ order.created_at[:16] }}</p>
+  </div>
+  <div class="form-card">
+    <h2>Items</h2>
+    <table class="table">
+      <thead><tr><th>Item</th><th>Size</th><th>Qty</th><th>Price</th></tr></thead>
+      <tbody>
+      {% for it in items %}
+        <tr>
+          <td>{{ it.name }}</td>
+          <td>{{ it.size }}</td>
+          <td>{{ it.qty }}</td>
+          <td>₹{{ (it.price * it.qty)|inr }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    <div class="total-row"><span>Total (pay on delivery)</span><strong>₹{{ order.total|inr }}</strong></div>
+    <h2>Update status</h2>
+    <form method="post" class="inline-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <select name="status">
+        {% for s in statuses %}
+          <option value="{{ s }}" {% if order.status == s %}selected{% endif %}>{{ s }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="btn btn-primary btn-small">Update</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

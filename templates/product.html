@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }}{% endblock %}
+{% block social_meta %}
+<link rel="canonical" href="{{ url_for('product_detail', slug=product.slug, _external=True) }}">
+<meta property="og:type" content="product">
+<meta property="og:site_name" content="VIVAH">
+<meta property="og:title" content="{{ product.name }} | VIVAH Ladies' Suits">
+<meta property="og:description" content="{{ product.description or 'Discover elegant ladies suits from VIVAH.' }}">
+<meta property="og:url" content="{{ url_for('product_detail', slug=product.slug, _external=True) }}">
+{% if images %}<meta property="og:image" content="{{ url_for('static', filename=images[0], _external=True) }}">{% endif %}
+<meta property="product:price:amount" content="{{ product.price }}">
+<meta property="product:price:currency" content="INR">
+{% endblock %}
+{% block content %}
+<nav class="breadcrumbs"><a href="{{ url_for('index') }}">Shop</a> › {{ product.name }}</nav>
+
+<div class="detail">
+  <div class="detail-gallery">
+    <div class="detail-img" id="product-zoom-area" tabindex="0" role="button" aria-label="Zoom product image">
+      {% set gallery_images = images or ([product.image] if product.image else []) %}
+      {% if gallery_images %}
+        <img id="product-main-image" src="{{ url_for('static', filename=gallery_images[0]) }}" alt="{{ product.name }}" data-zoomable>
+        <span class="zoom-hint" aria-hidden="true">⌕ Click to zoom</span>
+      {% else %}
+        <div class="img-fallback">🦚</div>
+      {% endif %}
+    </div>
+    {% if gallery_images|length > 1 %}
+      <div class="detail-thumbnails" aria-label="Product images">
+        {% for image in gallery_images %}
+          <button type="button" class="detail-thumbnail {% if loop.first %}active{% endif %}" data-gallery-image="{{ url_for('static', filename=image) }}" aria-label="View image {{ loop.index }}">
+            <img src="{{ url_for('static', filename=image) }}" alt="{{ product.name }} view {{ loop.index }}">
+          </button>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+  <div class="detail-info">
+    <div class="card-cat">{{ product.catalog_name or 'Suits' }}</div>
+    <h1>{{ product.name }}</h1>
+    <div class="detail-rating" aria-label="4.8 out of 5 stars">★★★★★ <span>4.8 · 12 reviews</span></div>
+    <div class="detail-price">
+      <span class="price big">₹{{ product.price|inr }}</span>
+      {% if product.compare_at and product.compare_at > product.price %}
+        <span class="compare">₹{{ product.compare_at|inr }}</span>
+        <span class="save">Save ₹{{ (product.compare_at - product.price)|inr }}</span>
+      {% endif %}
+    </div>
+    <p class="detail-desc">{{ product.description }}</p>
+
+    {% if product.stock > 0 %}
+      <form action="{{ url_for('cart_add') }}" method="post" class="buy-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="product_id" value="{{ product.id }}">
+        <input type="hidden" name="next" value="{{ url_for('product_detail', slug=product.slug) }}">
+        {% if sizes %}
+          <label class="field-label">Size</label>
+          <div class="size-row">
+            {% for s in sizes %}
+              <label class="size-pill">
+                <input type="radio" name="size" value="{{ s }}" {% if loop.first %}checked{% endif %}>
+                <span>{{ s }}</span>
+              </label>
+            {% endfor %}
+          </div>
+        {% endif %}
+        <label class="field-label" for="color">Color</label>
+        <div class="color-selector">
+          <span class="color-swatch" aria-hidden="true"></span>
+          <select id="color" name="color" aria-label="Select color">
+            <option value="{{ product.color or 'As shown' }}" selected>{{ product.color or 'As shown' }}</option>
+          </select>
+        </div>
+        <label class="field-label" for="qty">Quantity</label>
+        <div class="qty-row">
+          <input type="number" id="qty" name="qty" value="1" min="1" max="10">
+          <span class="stock-note">{{ product.stock }} in stock</span>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Add to Bag 🛍</button>
+      </form>
+    {% else %}
+      <p class="out-note">This suit is currently sold out.</p>
+    {% endif %}
+    <a class="whatsapp-share-btn detail-share" href="{{ url_for('share_product_whatsapp', pid=product.id) }}" aria-label="Share {{ product.name }} on WhatsApp"><span class="whatsapp-mark" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 3.2a8.8 8.8 0 0 0-7.6 13.2L3.2 20.8l4.5-1.2A8.8 8.8 0 1 0 12 3.2Zm0 15.8a7 7 0 0 1-3.6-1l-.3-.2-2.7.7.7-2.6-.2-.3A7 7 0 1 1 12 19Zm3.8-5.2c-.2-.1-1.2-.6-1.4-.7-.2-.1-.3-.1-.5.1l-.6.8c-.1.2-.3.2-.5.1a5.7 5.7 0 0 1-2.8-2.5c-.2-.3 0-.4.1-.5l.4-.5c.1-.1.1-.3.2-.4 0-.1 0-.3-.1-.4l-.6-1.4c-.2-.4-.3-.4-.5-.4h-.4c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 1.9s.8 2.2.9 2.3a8 8 0 0 0 3.1 3c.4.2 1.4.6 1.8.7.4.1.8.1 1.1.1.3 0 1.1-.5 1.3-.9.2-.4.2-.8.1-.9-.1-.1-.2-.1-.4-.2Z"/></svg></span> Share on WhatsApp</a>
+    <p class="cod-note">💵 Pay on delivery · 🚚 Dispatched in 2–3 days</p>
+    <div class="delivery-box"><strong>Estimated delivery</strong><span>3–7 business days across India</span><small>Order before 2 PM for the fastest dispatch.</small></div>
+  </div>
+</div>
+
+<section class="product-information">
+  <div class="information-card">
+    <h2>Details</h2>
+    <dl class="product-specs">
+      <div><dt>Color</dt><dd>{{ product.color or 'As shown' }}</dd></div>
+      <div><dt>Fabric</dt><dd>{{ product.fabric or 'Premium fabric' }}</dd></div>
+      <div><dt>Style</dt><dd>{{ product.fit_type or 'Ready to wear' }}</dd></div>
+      <div><dt>Embroidery</dt><dd>{{ product.embroidery_level or 'Light' }}</dd></div>
+    </dl>
+  </div>
+  <div class="information-card">
+    <h2>Measurements</h2>
+    <p class="muted">Designed for an easy, comfortable fit. Please compare with a similar garment before ordering.</p>
+    <div class="measurement-table"><span>Size</span><span>Bust</span><span>Waist</span><span>Length</span><strong>S</strong><span>36 in</span><span>30 in</span><span>44 in</span><strong>M</strong><span>38 in</span><span>32 in</span><span>44 in</span><strong>L</strong><span>40 in</span><span>34 in</span><span>45 in</span><strong>XL</strong><span>42 in</span><span>36 in</span><span>45 in</span></div>
+  </div>
+  <div class="information-card">
+    <h2>Care instructions</h2>
+    <ul class="care-list"><li>Gentle hand wash or dry clean recommended.</li><li>Wash dark and light colours separately.</li><li>Dry in shade and iron on low heat.</li></ul>
+  </div>
+  <div class="information-card reviews-card">
+    <div class="reviews-heading"><div><h2>Customer reviews</h2><div class="detail-rating">★★★★★ <span>4.8 average</span></div></div><span class="review-count">12 reviews</span></div>
+    <blockquote>“The fabric feels beautiful and the fit was exactly right. The detailing is even nicer in person.”<cite>Verified Vivah customer</cite></blockquote>
+  </div>
+</section>
+
+{% if related %}
+  <h2 class="section-title">You may also like</h2>
+  <section class="product-grid">
+    {% for p in related %}
+      <article class="card">
+        <a href="{{ url_for('product_detail', slug=p.slug) }}" class="card-img">
+          {% if p.image %}
+            <img src="{{ url_for('static', filename=p.image) }}" alt="{{ p.name }}" loading="lazy">
+          {% else %}
+            <div class="img-fallback">🦚</div>
+          {% endif %}
+        </a>
+        <div class="card-body">
+          <a href="{{ url_for('product_detail', slug=p.slug) }}" class="card-title">{{ p.name }}</a>
+          <div class="card-price"><span class="price">₹{{ p.price|inr }}</span></div>
+        </div>
+      </article>
+    {% endfor %}
+  </section>
+{% endif %}
+{% endblock %}
